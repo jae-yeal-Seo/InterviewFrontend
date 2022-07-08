@@ -11,7 +11,7 @@ function App() {
     <>
     <div style = {{ marginLeft : 30, marginTop : 30 }}>
     {/* 버전6부터는 Switch -> Routes, component -> element */}
-      <Router>
+      <Router>  
         <Routes>
     <Route path = "/" element={<InterviewQuestions/>} />
     <Route path = "/interviewquestions/" element={<InterviewQuestions/>}/>

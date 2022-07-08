@@ -1,5 +1,6 @@
 import axios from 'axios'
 import {useState} from 'react'
+import NestedList from '../components/NestedList'
 
 
 function InterviewQuestions({history}) {
@@ -47,6 +48,9 @@ function InterviewQuestions({history}) {
    <div>
      <button onClick={otherquestion}>다른질문</button>
      <button onClick={test}>서버와의 통신</button>
+   </div>
+   <div className='float-right mr-32'>
+      <NestedList/>
    </div>
         </>
     )
