@@ -1,4 +1,5 @@
 import * as React from 'react';
+import ReactDOM from 'react-dom'
 import TextField from '@mui/material/TextField'
 import ListSubheader from '@mui/material/ListSubheader';
 import List from '@mui/material/List';
@@ -11,31 +12,80 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import StarBorder from '@mui/icons-material/StarBorder';
 import { BsFillPencilFill, BsQuestionSquare } from 'react-icons/bs';
+import { AiFillPlusCircle } from 'react-icons/ai'
+import {AiOutlinePlusCircle} from 'react-icons/ai'
+
 
 export default function NestedList() {
   const [open, setOpen] = React.useState(true);
-  const [inputDisabled, setInputDisabled] = React.useState(true);
+  const [inputDisabled, setInputDisabled] = React.useState([]);
+  const [questionset,setQuestionset] = React.useState([])
+  const [questionsets,setQuestionsets] = React.useState([])
+  
 
   const handleClick = () => {
     setOpen(!open);
   };
 
-  // 면접질문이름 수정할 때 실행되는 함수
-  const questionSetEdit = () => {
-    setInputDisabled(false)
+  // 수정아이콘 클릭시 실행되는 함수
+  const questionSetEdit = (index) => {
+    let newArray = [...inputDisabled]
+    newArray[index] = false
+    setInputDisabled(newArray)
   }
 
   // 포커스해제시에 실행되는 함수
-  const onBlur = () => {
-    setInputDisabled(true)
+  const onBlur = (index) => {
+    let newArray = [...inputDisabled]
+    newArray[index] = true
+    setInputDisabled(newArray)
   }
 
+  const questionAdd = () => {
+    setQuestionsets([...questionsets, questionset])
+    setQuestionset("")
+    // 만들어질 때도 Disalbed true로 하기
+  }
 
+// 테스트코드
+
+  const nameInput = React.useRef([]);
+
+
+  nameInput.current = questionsets.map((element, i) => nameInput.current[i] ?? React.createRef());
+  // https://dev.to/nicm42/react-refs-in-a-loop-1jk4 참조
+
+  const doFocus = (index) => {
+  }
+
+  const doBlur = (index) =>{
+    nameInput.current[index].disabled = true;
+  }
+
+  const onEnterPress = (e) => {
+    if(e.key === 'Enter')
+    questionAdd();
+  }
+
+  const questionsetChange = (e,index) => {
+    let newArr = [...questionsets];
+    newArr[index] = e.target.value
+    setQuestionsets(newArr)
+  }
+
+  React.useEffect(()=>{
+    questionsets && questionsets.map((a,index) => {
+      let newArray = [...inputDisabled]
+      newArray[index] = true;
+      setInputDisabled(newArray)
+    })
+  },[questionsets])
 
 
   return (
+    <>
     <List
-      sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
+      sx={{ width: '100%', minWidth:280, maxWidth: 360, bgcolor: 'background.paper' }}
       component="nav"
       aria-labelledby="nested-list-subheader"
       subheader={
@@ -44,34 +94,48 @@ export default function NestedList() {
         </ListSubheader>
       }
     >
-      <ListItemButton 
-      style={{ backgroundColor: 'transparent' }}>
-        <TextField 
-        id="outlined-basic" 
-        variant="standard"
-        disabled={inputDisabled}
-        onBlur={onBlur}
-        />
-        <BsFillPencilFill onClick={questionSetEdit} style={{ marginLeft:20 }}/>
-        {/* ?! 연필이 아니라 TextField를 클릭시에 abled로 하게 한다. */}
-        {/* ?! TextField의 글씨를 진하게 한다. */}
-        {open ? <ExpandLess onClick={handleClick} sx={{ ml:4 }}/> : <ExpandMore onClick={handleClick} sx={{ ml:4 }}/>}
-      </ListItemButton>
-      {/* ?! 위 아래 누를때만 효과 나오게 하기 */}
-      <Collapse in={open} timeout="auto" unmountOnExit>
-        <List component="div" disablePadding>
-          <ListItemButton sx={{ pl: 4 }}>
-            <ListItemIcon>
-              <StarBorder />
-            </ListItemIcon>
-            <ListItemText primary="Starred" />
-          </ListItemButton>
-        </List>
-      </Collapse>
+           
+  
+  <div class="relative">
+  <div class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
+  <AiOutlinePlusCircle/>
+  </div>
+<input type="search" id="default-search" class="block p-4 pl-10 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" value={questionset} onKeyPress={onEnterPress} onChange={(e) => {setQuestionset(e.target.value)}} placeholder="질문세트를 추가하세요" required> 
+  </input>
+  <button onClick={questionAdd} type="submit" class="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">추가</button>
+</div>
+
+          {
+            questionsets.map((onequestionset,index) => (
+              <>
+              <ListItemButton 
+            style={{ backgroundColor: 'transparent' }}>
+              <TextField 
+              id = "outlined-basic" 
+              variant = "standard"
+              disabled = {inputDisabled[index]}
+              onBlur = {() => onBlur(index)}
+              value = {onequestionset}
+              onChange={(e) => {questionsetChange(e,index)}}
+              />
+              <BsFillPencilFill onClick={() => questionSetEdit(index)} style={{ marginLeft:20 }}/>
+              {open ? <ExpandLess onClick={handleClick} sx={{ ml:4 }}/> : <ExpandMore onClick={handleClick} sx={{ ml:4 }}/>}
+              {/* ExpandLess도, ExpandMore도 전부 index를 보내주어서 그 애만 open값을 조절하게 해야됨 */}
+              </ListItemButton>
+              <Collapse in={open} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                <ListItemButton sx={{ pl: 4 }}>
+                  <ListItemIcon>
+                    <StarBorder />
+                  </ListItemIcon>
+                  <ListItemText primary="Starred" />
+                </ListItemButton>
+              </List>
+            </Collapse>
+              </>
+            ))
+           }
     </List>
+    </>
   );
 }
-// ?! 질문세트 배열만들고 추가할 때 UI와 배열에도 추가되게끔한다. "몇번째"세트를 readonly해제 시킬건지 명시해야하기 때문에 저게 더 우선이다. 
-// ?! 전체적인 가로크기 늘리기
-// ?! +버튼 누를 때 면접질문 추가할 수 있게 하기
-// ?! 
