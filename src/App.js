@@ -9,7 +9,7 @@ function App() {
 
   return (
     <>
-    <div style = {{ marginLeft : 30, marginTop : 30 }}>
+    <div style = {{ marginLeft : 30, marginTop : 30}}>
     {/* 버전6부터는 Switch -> Routes, component -> element */}
       <Router>  
         <Routes>
